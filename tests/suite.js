@@ -169,8 +169,9 @@ async function runTests() {
   it('Service Worker caches all necessary application shell files', () => {
     const swPath = path.resolve('sw.js');
     const content = fs.readFileSync(swPath, 'utf-8');
-    assert.ok(content.includes('lesofen-agenda-v5'));
-    assert.ok(content.includes('/js/exercisesData.js'));
+    assert.ok(content.includes('lesofen-agenda-v6'));
+    assert.ok(content.includes('/js/exportCard.js'));
+    assert.ok(!content.includes('/js/exercisesData.js'));
     assert.ok(content.includes('caches.open'));
     assert.ok(content.includes('caches.match'));
     assert.ok(content.includes('install'));
@@ -178,8 +179,8 @@ async function runTests() {
     assert.ok(content.includes('fetch'));
   });
 
-  // 4. V2 Antrenman Günlüğü (Workout Log) Tests
-  console.log('\n[4. V2 Workout Log: Exercise, Sets, Notes & Persistence]');
+  // 4. V2 Antrenman Günlüğü (Workout Log) Storage Persistence Tests
+  console.log('\n[4. Storage Persistence & Backward Compatibility]');
 
   it('Backward compatibility: normalizes legacy V1 records', () => {
     // Inject legacy V1 record into mock localStorage
@@ -280,6 +281,49 @@ async function runTests() {
     assert.equal(updated.note, 'Bugün son sette zorlandım.');
   });
 
+  // 5. Monthly PNG Card & Simplified Modal Verification
+  console.log('\n[5. Monthly PNG Card & Simplified Modal Verification]');
+  const { ASCII_MONTH_NAMES, TR_MONTH_NAMES, TR_WEEKDAY_NAMES, exportMonthlyCard } = await import('../js/exportCard.js');
+
+  it('ASCII month names correctly map Turkish characters for file safety', () => {
+    assert.equal(ASCII_MONTH_NAMES.length, 12);
+    assert.equal(ASCII_MONTH_NAMES[0], 'Ocak');
+    assert.equal(ASCII_MONTH_NAMES[1], 'Subat');
+    assert.equal(ASCII_MONTH_NAMES[4], 'Mayis');
+    assert.equal(ASCII_MONTH_NAMES[7], 'Agustos');
+    assert.equal(ASCII_MONTH_NAMES[8], 'Eylul');
+    assert.equal(ASCII_MONTH_NAMES[10], 'Kasim');
+    assert.equal(ASCII_MONTH_NAMES[11], 'Aralik');
+
+    // Test filename format
+    const septFilename = `Lesofen-Ajanda-${ASCII_MONTH_NAMES[8]}-2026.png`;
+    assert.equal(septFilename, 'Lesofen-Ajanda-Eylul-2026.png');
+  });
+
+  it('exportCard exports all required constants and function', () => {
+    assert.equal(typeof exportMonthlyCard, 'function');
+    assert.equal(TR_MONTH_NAMES.length, 12);
+    assert.equal(TR_WEEKDAY_NAMES.length, 7);
+    assert.equal(TR_WEEKDAY_NAMES[0], 'PZT');
+    assert.equal(TR_WEEKDAY_NAMES[6], 'PAZ');
+  });
+
+  it('Calendar and modal files do not contain exercise log DOM references', () => {
+    const modalPath = path.resolve('js/workoutModal.js');
+    const modalContent = fs.readFileSync(modalPath, 'utf-8');
+    assert.ok(!modalContent.includes('btnOpenAddExercise'), 'No exercise add button in modal');
+    assert.ok(!modalContent.includes('exerciseSearchInput'), 'No exercise search input in modal');
+    assert.ok(!modalContent.includes('sets-table-container'), 'No sets table in modal');
+    assert.ok(!modalContent.includes('workoutNoteTextarea'), 'No note textarea in modal');
+    assert.ok(modalContent.includes('modalBtnClose'), 'Close button exists in modal');
+
+    const calPath = path.resolve('js/calendar.js');
+    const calContent = fs.readFileSync(calPath, 'utf-8');
+    assert.ok(!calContent.includes('egz'), 'No egz badge in day cells');
+    assert.ok(calContent.includes('btnExportCard'), 'Export card button exists');
+    assert.ok(calContent.includes('AYLIK KARTI İNDİR'), 'Exact button text AYLIK KARTI İNDİR exists');
+  });
+
   console.log(`\n========================================`);
   console.log(`Test Results: ${passed} passed, ${failed} failed.`);
   console.log(`========================================\n`);
@@ -290,3 +334,4 @@ async function runTests() {
 }
 
 runTests();
+

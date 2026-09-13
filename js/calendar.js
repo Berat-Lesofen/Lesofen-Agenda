@@ -1,11 +1,12 @@
 /**
- * LESOFEN AGENDA - Main Calendar Engine
+ * LESOFEN AJANDA - Main Calendar Engine
  * Training · Planning · Consistency
  */
 
 import { agendaStorage, SPLITS, SPLIT_MAP } from './storage.js';
 import { DragDropManager } from './dragdrop.js';
 import { WorkoutModal } from './workoutModal.js';
+import { exportMonthlyCard } from './exportCard.js';
 
 export class CalendarApp {
   constructor(containerElement) {
@@ -26,7 +27,7 @@ export class CalendarApp {
     this.dragDrop = new DragDropManager(this);
     this.modal = new WorkoutModal(() => this.render());
 
-    // Re-render whenever storage updates (skip if modal is active to prevent layout jitter)
+    // Re-render whenever storage updates (skip if modal is active to prevent layout shifts)
     agendaStorage.subscribe(() => {
       if (this.modal && typeof this.modal.isOpen === 'function' && this.modal.isOpen()) {
         return;
@@ -96,22 +97,29 @@ export class CalendarApp {
             <p class="brand-subtitle">Training · Planning · Consistency</p>
           </div>
 
-          <!-- Ay Kontrolleri -->
+          <!-- Ay Kontrolleri & İndirme Butonu -->
           <div class="nav-controls">
-            <button type="button" class="btn-nav" id="btnPrevMonth" aria-label="Önceki Ay" title="Önceki Ay">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-              <span class="btn-nav-text">Önceki</span>
-            </button>
-            <div class="nav-month-display">
-              <span class="month-name">${this.monthNamesTr[this.currentMonth].toUpperCase()}</span>
-              <span class="year-name">${this.currentYear}</span>
+            <div class="nav-month-cluster">
+              <button type="button" class="btn-nav" id="btnPrevMonth" aria-label="Önceki Ay" title="Önceki Ay">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <span class="btn-nav-text">Önceki</span>
+              </button>
+              <div class="nav-month-display">
+                <span class="month-name">${this.monthNamesTr[this.currentMonth].toUpperCase()}</span>
+                <span class="year-name">${this.currentYear}</span>
+              </div>
+              <button type="button" class="btn-nav" id="btnNextMonth" aria-label="Sonraki Ay" title="Sonraki Ay">
+                <span class="btn-nav-text">Sonraki</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+              <button type="button" class="btn-today ${isCurrentMonth ? 'is-current' : ''}" id="btnToday">
+                BUGÜN
+              </button>
             </div>
-            <button type="button" class="btn-nav" id="btnNextMonth" aria-label="Sonraki Ay" title="Sonraki Ay">
-              <span class="btn-nav-text">Sonraki</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </button>
-            <button type="button" class="btn-today ${isCurrentMonth ? 'is-current' : ''}" id="btnToday">
-              BUGÜN
+
+            <button type="button" class="btn-export-card" id="btnExportCard" title="Seçili ayı yüksek çözünürlüklü PNG kart olarak indir">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span>AYLIK KARTI İNDİR</span>
             </button>
           </div>
         </header>
@@ -174,7 +182,6 @@ export class CalendarApp {
                 const split = workout ? SPLIT_MAP.get(workout.split) : null;
                 const isToday = isCurrentMonth && dayNum === todayDate;
                 const isCompleted = workout && workout.status === 'completed';
-                const exCount = (workout && Array.isArray(workout.exercises)) ? workout.exercises.length : 0;
 
                 // Past vs Future styling
                 const cellDate = new Date(this.currentYear, this.currentMonth, dayNum, 23, 59, 59);
@@ -185,7 +192,7 @@ export class CalendarApp {
                        data-date="${dateKey}"
                        tabindex="0"
                        role="button"
-                       aria-label="${dayNum} ${this.monthNamesTr[this.currentMonth]} ${workout ? (split?.name || workout.split) : 'Boş gün'}${exCount > 0 ? `, ${exCount} egzersiz` : ''}">
+                       aria-label="${dayNum} ${this.monthNamesTr[this.currentMonth]} ${workout ? (split?.name || workout.split) : 'Boş gün'}">
                     
                     <div class="day-header">
                       <span class="day-number ${isToday ? 'today-number' : ''}">
@@ -200,7 +207,6 @@ export class CalendarApp {
                              style="--split-color: ${split.color}; --split-bg: ${split.bg}; --split-border: ${split.border};">
                           <div class="placed-split-info">
                             <span class="placed-split-text">${split.name}${isCompleted ? ' ✓' : ''}</span>
-                            ${exCount > 0 ? `<span class="placed-split-badge">${exCount} egz</span>` : ''}
                           </div>
                           <button type="button" 
                                   class="btn-remove-split" 
@@ -262,6 +268,7 @@ export class CalendarApp {
                 <li><strong>Masaüstü:</strong> Split kartını tutup takvim gününe sürükleyin.</li>
                 <li><strong>Mobil:</strong> Güne dokunarak menüden seçin veya yukarıdan split'i seçip günlere tıklayın.</li>
                 <li><strong>Tamamlandı:</strong> Atanmış güne dokunarak tek tuşla <em>✓ Tamamlandı</em> yapabilirsiniz.</li>
+                <li><strong>Aylık Kart:</strong> <em>AYLIK KARTI İNDİR</em> ile seçili ayın antrenman takvimini PNG olarak cihazınıza kaydedin.</li>
                 <li><strong>Çevrimdışı:</strong> İnternet olmadan da tüm verileriniz cihazınızda korunur.</li>
               </ul>
             </div>
@@ -287,7 +294,34 @@ export class CalendarApp {
     if (btnNext) btnNext.addEventListener('click', () => this.nextMonth());
     if (btnToday) btnToday.addEventListener('click', () => this.goToToday());
 
-    // 2. Clear selection banner button
+    // 2. Export Monthly Card button
+    const btnExport = this.container.querySelector('#btnExportCard');
+    if (btnExport) {
+      btnExport.addEventListener('click', async () => {
+        const originalHtml = btnExport.innerHTML;
+        btnExport.disabled = true;
+        btnExport.classList.add('is-exporting');
+        try {
+          await exportMonthlyCard(this.currentYear, this.currentMonth, this.storage, SPLIT_MAP);
+          btnExport.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>AYLIK KART İNDİRİLDİ ✓</span>
+          `;
+          setTimeout(() => {
+            btnExport.innerHTML = originalHtml;
+            btnExport.disabled = false;
+            btnExport.classList.remove('is-exporting');
+          }, 1800);
+        } catch (err) {
+          console.error('[Lesofen Ajanda] Aylık kart dışa aktarım hatası:', err);
+          btnExport.innerHTML = originalHtml;
+          btnExport.disabled = false;
+          btnExport.classList.remove('is-exporting');
+        }
+      });
+    }
+
+    // 3. Clear selection banner button
     const btnClearSelection = this.container.querySelector('#btnClearSelection');
     if (btnClearSelection) {
       btnClearSelection.addEventListener('click', () => {
@@ -296,7 +330,7 @@ export class CalendarApp {
       });
     }
 
-    // 3. Split chip click (Tap-to-select mode)
+    // 4. Split chip click (Tap-to-select mode)
     const chips = this.container.querySelectorAll('.split-chip');
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
@@ -307,7 +341,7 @@ export class CalendarApp {
       });
     });
 
-    // 4. Day cells click
+    // 5. Day cells click
     const cells = this.container.querySelectorAll('.day-cell:not(.day-cell-filler)');
     cells.forEach(cell => {
       const dateKey = cell.dataset.date;
@@ -329,7 +363,7 @@ export class CalendarApp {
           agendaStorage.setWorkout(dateKey, selectedSplit, existing ? existing.status : 'planned');
           this.render();
         } else {
-          // Open Workout Modal
+          // Open Simplified Workout Modal
           this.modal.open(dateKey);
         }
       });
