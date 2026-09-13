@@ -29,15 +29,14 @@ class AgendaStorage {
   }
 
   /**
-   * Load schedule from localStorage
-   * @returns {Object.<string, {split: string, status: string, updatedAt: string}>}
+   * Load schedule from localStorage with V1/V2 normalization
+   * @returns {Object.<string, {split: string, status: string, exercises: Array, note: string, updatedAt: string}>}
    */
   loadSchedule() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return {};
       const parsed = JSON.parse(raw);
-      // Normalize legacy string format if present
       const normalized = {};
       for (const [dateKey, val] of Object.entries(parsed)) {
         if (!val) continue;
@@ -45,12 +44,16 @@ class AgendaStorage {
           normalized[dateKey] = {
             split: val,
             status: 'planned',
+            exercises: [],
+            note: '',
             updatedAt: new Date().toISOString()
           };
         } else if (typeof val === 'object' && val.split) {
           normalized[dateKey] = {
             split: val.split,
             status: val.status === 'completed' ? 'completed' : 'planned',
+            exercises: Array.isArray(val.exercises) ? val.exercises : [],
+            note: typeof val.note === 'string' ? val.note : '',
             updatedAt: val.updatedAt || new Date().toISOString()
           };
         }
@@ -91,7 +94,7 @@ class AgendaStorage {
   }
 
   /**
-   * Set or update workout for a date
+   * Set or update workout for a date, preserving exercises and note
    * @param {string} dateKey - Format 'YYYY-MM-DD'
    * @param {string} splitId - Split identifier (e.g. 'PUSH')
    * @param {'planned'|'completed'} [status='planned']
@@ -102,9 +105,12 @@ class AgendaStorage {
       return;
     }
 
+    const existing = this.schedule[dateKey];
     this.schedule[dateKey] = {
       split: splitId,
       status: status === 'completed' ? 'completed' : 'planned',
+      exercises: existing?.exercises ? [...existing.exercises] : [],
+      note: typeof existing?.note === 'string' ? existing.note : '',
       updatedAt: new Date().toISOString()
     };
     this.saveSchedule();
@@ -144,6 +150,135 @@ class AgendaStorage {
    */
   removeWorkout(dateKey) {
     this.deleteWorkout(dateKey);
+  }
+
+  /**
+   * Add an exercise to a workout day
+   * @param {string} dateKey
+   * @param {string} exerciseName
+   * @param {string} [defaultSplit=null]
+   * @returns {Object} created exercise
+   */
+  addExerciseToWorkout(dateKey, exerciseName, defaultSplit = null) {
+    let entry = this.schedule[dateKey];
+    if (!entry) {
+      this.schedule[dateKey] = {
+        split: defaultSplit || 'FULL BODY',
+        status: 'planned',
+        exercises: [],
+        note: '',
+        updatedAt: new Date().toISOString()
+      };
+      entry = this.schedule[dateKey];
+    }
+    if (!Array.isArray(entry.exercises)) {
+      entry.exercises = [];
+    }
+
+    const newEx = {
+      id: 'ex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+      name: exerciseName.trim(),
+      sets: [
+        { weight: '', reps: '' }
+      ]
+    };
+
+    entry.exercises.push(newEx);
+    entry.updatedAt = new Date().toISOString();
+    this.saveSchedule();
+    return newEx;
+  }
+
+  /**
+   * Remove an exercise from a workout day
+   */
+  removeExerciseFromWorkout(dateKey, exerciseId) {
+    const entry = this.schedule[dateKey];
+    if (!entry || !Array.isArray(entry.exercises)) return;
+    entry.exercises = entry.exercises.filter(ex => ex.id !== exerciseId);
+    entry.updatedAt = new Date().toISOString();
+    this.saveSchedule();
+  }
+
+  /**
+   * Add a set to an exercise in a workout day
+   */
+  addSetToExercise(dateKey, exerciseId, weight = '', reps = '') {
+    const entry = this.schedule[dateKey];
+    if (!entry || !Array.isArray(entry.exercises)) return;
+    const exercise = entry.exercises.find(ex => ex.id === exerciseId);
+    if (!exercise) return;
+    if (!Array.isArray(exercise.sets)) exercise.sets = [];
+
+    let finalWeight = weight;
+    let finalReps = reps;
+    // Auto prefill from previous set if both empty
+    if (finalWeight === '' && finalReps === '' && exercise.sets.length > 0) {
+      const last = exercise.sets[exercise.sets.length - 1];
+      finalWeight = last.weight || '';
+      finalReps = last.reps || '';
+    }
+
+    exercise.sets.push({
+      weight: String(finalWeight),
+      reps: String(finalReps)
+    });
+    entry.updatedAt = new Date().toISOString();
+    this.saveSchedule();
+  }
+
+  /**
+   * Alias for addSetToExercise
+   */
+  addSet(dateKey, exerciseId, weight, reps) {
+    this.addSetToExercise(dateKey, exerciseId, weight, reps);
+  }
+
+  /**
+   * Update weight or reps of a set
+   */
+  updateSet(dateKey, exerciseId, setIndex, weight, reps) {
+    const entry = this.schedule[dateKey];
+    if (!entry || !Array.isArray(entry.exercises)) return;
+    const exercise = entry.exercises.find(ex => ex.id === exerciseId);
+    if (!exercise || !Array.isArray(exercise.sets) || !exercise.sets[setIndex]) return;
+
+    if (weight !== undefined) exercise.sets[setIndex].weight = String(weight);
+    if (reps !== undefined) exercise.sets[setIndex].reps = String(reps);
+    entry.updatedAt = new Date().toISOString();
+    this.saveSchedule();
+  }
+
+  /**
+   * Remove a set from an exercise
+   */
+  removeSetFromExercise(dateKey, exerciseId, setIndex) {
+    const entry = this.schedule[dateKey];
+    if (!entry || !Array.isArray(entry.exercises)) return;
+    const exercise = entry.exercises.find(ex => ex.id === exerciseId);
+    if (!exercise || !Array.isArray(exercise.sets)) return;
+
+    exercise.sets.splice(setIndex, 1);
+    entry.updatedAt = new Date().toISOString();
+    this.saveSchedule();
+  }
+
+  /**
+   * Alias for removeSetFromExercise
+   */
+  removeSet(dateKey, exerciseId, setIndex) {
+    this.removeSetFromExercise(dateKey, exerciseId, setIndex);
+  }
+
+  /**
+   * Update workout note
+   */
+  updateWorkoutNote(dateKey, note) {
+    const entry = this.schedule[dateKey];
+    if (!entry) return;
+    entry.note = String(note || '');
+    entry.updatedAt = new Date().toISOString();
+    this.saveSchedule();
   }
 
   /**

@@ -169,6 +169,7 @@ export class CalendarApp {
                 const split = workout ? SPLIT_MAP.get(workout.split) : null;
                 const isToday = isCurrentMonth && dayNum === todayDate;
                 const isCompleted = workout && workout.status === 'completed';
+                const exCount = (workout && Array.isArray(workout.exercises)) ? workout.exercises.length : 0;
 
                 // Past vs Future styling
                 const cellDate = new Date(this.currentYear, this.currentMonth, dayNum, 23, 59, 59);
@@ -179,7 +180,7 @@ export class CalendarApp {
                        data-date="${dateKey}"
                        tabindex="0"
                        role="button"
-                       aria-label="${dayNum} ${this.monthNamesTr[this.currentMonth]} ${workout ? (split?.name || workout.split) : 'Boş gün'}">
+                       aria-label="${dayNum} ${this.monthNamesTr[this.currentMonth]} ${workout ? (split?.name || workout.split) : 'Boş gün'}${exCount > 0 ? `, ${exCount} egzersiz` : ''}">
                     
                     <div class="day-header">
                       <span class="day-number ${isToday ? 'today-number' : ''}">
@@ -192,7 +193,10 @@ export class CalendarApp {
                       ${workout && split ? `
                         <div class="placed-split-card ${isCompleted ? 'is-completed' : ''}"
                              style="--split-color: ${split.color}; --split-bg: ${split.bg}; --split-border: ${split.border};">
-                          <span class="placed-split-text">${split.name}${isCompleted ? ' ✓' : ''}</span>
+                          <div class="placed-split-info">
+                            <span class="placed-split-text">${split.name}${isCompleted ? ' ✓' : ''}</span>
+                            ${exCount > 0 ? `<span class="placed-split-badge">${exCount} egz</span>` : ''}
+                          </div>
                           <button type="button" 
                                   class="btn-remove-split" 
                                   data-date="${dateKey}" 

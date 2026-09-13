@@ -169,12 +169,115 @@ async function runTests() {
   it('Service Worker caches all necessary application shell files', () => {
     const swPath = path.resolve('sw.js');
     const content = fs.readFileSync(swPath, 'utf-8');
-    assert.ok(/lesofen-agenda-v\d+/.test(content));
+    assert.ok(content.includes('lesofen-agenda-v4'));
+    assert.ok(content.includes('/js/exercisesData.js'));
     assert.ok(content.includes('caches.open'));
     assert.ok(content.includes('caches.match'));
     assert.ok(content.includes('install'));
     assert.ok(content.includes('activate'));
     assert.ok(content.includes('fetch'));
+  });
+
+  // 4. V2 Antrenman Günlüğü (Workout Log) Tests
+  console.log('\n[4. V2 Workout Log: Exercise, Sets, Notes & Persistence]');
+
+  it('Backward compatibility: normalizes legacy V1 records', () => {
+    // Inject legacy V1 record into mock localStorage
+    globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      '2026-09-10': 'PUSH',
+      '2026-09-11': { split: 'PULL', status: 'completed' }
+    }));
+
+    const freshSchedule = agendaStorage.loadSchedule();
+    assert.ok(freshSchedule['2026-09-10']);
+    assert.equal(freshSchedule['2026-09-10'].split, 'PUSH');
+    assert.equal(freshSchedule['2026-09-10'].status, 'planned');
+    assert.deepEqual(freshSchedule['2026-09-10'].exercises, []);
+    assert.equal(freshSchedule['2026-09-10'].note, '');
+
+    assert.ok(freshSchedule['2026-09-11']);
+    assert.equal(freshSchedule['2026-09-11'].split, 'PULL');
+    assert.equal(freshSchedule['2026-09-11'].status, 'completed');
+    assert.deepEqual(freshSchedule['2026-09-11'].exercises, []);
+    assert.equal(freshSchedule['2026-09-11'].note, '');
+  });
+
+  it('Can add exercise with default set to a workout day', () => {
+    agendaStorage.setWorkout('2026-09-15', 'PUSH', 'planned');
+    const ex1 = agendaStorage.addExerciseToWorkout('2026-09-15', 'Bench Press');
+    assert.ok(ex1 && ex1.id);
+    assert.equal(ex1.name, 'Bench Press');
+    assert.equal(ex1.sets.length, 1);
+
+    const workout = agendaStorage.getWorkout('2026-09-15');
+    assert.equal(workout.exercises.length, 1);
+    assert.equal(workout.exercises[0].name, 'Bench Press');
+  });
+
+  it('Can update weight and reps of a set', () => {
+    const workout = agendaStorage.getWorkout('2026-09-15');
+    const exId = workout.exercises[0].id;
+    agendaStorage.updateSet('2026-09-15', exId, 0, '70', '8');
+
+    const updated = agendaStorage.getWorkout('2026-09-15');
+    assert.equal(updated.exercises[0].sets[0].weight, '70');
+    assert.equal(updated.exercises[0].sets[0].reps, '8');
+  });
+
+  it('Can add sets with auto-prefill from previous set', () => {
+    const workout = agendaStorage.getWorkout('2026-09-15');
+    const exId = workout.exercises[0].id;
+    // Set 2 auto-prefill
+    agendaStorage.addSetToExercise('2026-09-15', exId);
+    // Set 3 explicit decimal weight & reps
+    agendaStorage.addSetToExercise('2026-09-15', exId, '67.5', '7');
+
+    const updated = agendaStorage.getWorkout('2026-09-15');
+    assert.equal(updated.exercises[0].sets.length, 3);
+    assert.equal(updated.exercises[0].sets[1].weight, '70');
+    assert.equal(updated.exercises[0].sets[1].reps, '8');
+    assert.equal(updated.exercises[0].sets[2].weight, '67.5');
+    assert.equal(updated.exercises[0].sets[2].reps, '7');
+  });
+
+  it('Can add free-form workout notes', () => {
+    agendaStorage.updateWorkoutNote('2026-09-15', 'Bugün son sette zorlandım.');
+    const workout = agendaStorage.getWorkout('2026-09-15');
+    assert.equal(workout.note, 'Bugün son sette zorlandım.');
+  });
+
+  it('Can remove a set from an exercise', () => {
+    const workout = agendaStorage.getWorkout('2026-09-15');
+    const exId = workout.exercises[0].id;
+    agendaStorage.removeSetFromExercise('2026-09-15', exId, 1);
+
+    const updated = agendaStorage.getWorkout('2026-09-15');
+    assert.equal(updated.exercises[0].sets.length, 2);
+    assert.equal(updated.exercises[0].sets[0].weight, '70');
+    assert.equal(updated.exercises[0].sets[1].weight, '67.5');
+  });
+
+  it('Can remove an exercise from a workout', () => {
+    const workout = agendaStorage.getWorkout('2026-09-15');
+    const exId = workout.exercises[0].id;
+    agendaStorage.removeExerciseFromWorkout('2026-09-15', exId);
+
+    const updated = agendaStorage.getWorkout('2026-09-15');
+    assert.equal(updated.exercises.length, 0);
+    // Note should still persist
+    assert.equal(updated.note, 'Bugün son sette zorlandım.');
+  });
+
+  it('Changing split preserves existing exercises and notes', () => {
+    agendaStorage.addExerciseToWorkout('2026-09-15', 'Overhead Press');
+    agendaStorage.setWorkout('2026-09-15', 'UPPER', 'completed');
+
+    const updated = agendaStorage.getWorkout('2026-09-15');
+    assert.equal(updated.split, 'UPPER');
+    assert.equal(updated.status, 'completed');
+    assert.equal(updated.exercises.length, 1);
+    assert.equal(updated.exercises[0].name, 'Overhead Press');
+    assert.equal(updated.note, 'Bugün son sette zorlandım.');
   });
 
   console.log(`\n========================================`);
