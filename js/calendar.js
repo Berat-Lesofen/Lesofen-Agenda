@@ -22,6 +22,7 @@ export class CalendarApp {
 
     this.dayNamesTr = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
+    this.storage = agendaStorage;
     this.dragDrop = new DragDropManager(this);
     this.modal = new WorkoutModal(() => this.render());
 
