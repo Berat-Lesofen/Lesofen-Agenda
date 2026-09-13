@@ -158,8 +158,8 @@ async function runTests() {
     const content = fs.readFileSync(manifestPath, 'utf-8');
     const manifest = JSON.parse(content);
 
-    assert.equal(manifest.name, 'Lesofen Agenda');
-    assert.equal(manifest.short_name, 'Agenda');
+    assert.equal(manifest.name, 'Lesofen Ajanda');
+    assert.equal(manifest.short_name, 'Lesofen Ajanda');
     assert.equal(manifest.display, 'standalone');
     assert.equal(manifest.background_color, '#08090c');
     assert.equal(manifest.theme_color, '#08090c');

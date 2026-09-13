@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Calendar Application
   const calendar = new CalendarApp(appContainer);
   window.__LESOFEN_AGENDA__ = calendar;
+  window.__LESOfEN_AGENDA__ = calendar;
 
   // Register Service Worker for PWA & Offline Support
   registerServiceWorker();

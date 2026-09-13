@@ -84,7 +84,7 @@ export class CalendarApp {
         <header class="agenda-header">
           <div class="brand-group">
             <div class="brand-badge-row">
-              <span class="brand-kicker">LESOFEN AGENDA</span>
+              <span class="brand-kicker">LESOFEN AJANDA</span>
               <span class="brand-tag">PWA · OFFLINE</span>
             </div>
             <h1 class="brand-title">Training Calendar</h1>

@@ -105,8 +105,8 @@ async function run() {
     fetch('/manifest.webmanifest').then(r => r.json())
   `);
 
-  console.log('Manifest Name:           ', parsedManifest.name, parsedManifest.name === 'Lesofen Agenda' ? '✔' : '❌');
-  console.log('Manifest Short Name:     ', parsedManifest.short_name, parsedManifest.short_name === 'Agenda' ? '✔' : '❌');
+  console.log('Manifest Name:           ', parsedManifest.name, parsedManifest.name === 'Lesofen Ajanda' ? '✔' : '❌');
+  console.log('Manifest Short Name:     ', parsedManifest.short_name, parsedManifest.short_name === 'Lesofen Ajanda' ? '✔' : '❌');
   console.log('Manifest Description:    ', parsedManifest.description);
   console.log('Manifest Start URL:      ', parsedManifest.start_url, parsedManifest.start_url === '/' ? '✔' : '❌');
   console.log('Manifest Scope:          ', parsedManifest.scope, parsedManifest.scope === '/' ? '✔' : '❌');
@@ -134,7 +134,7 @@ async function run() {
 
   console.log('apple-mobile-web-app-capable:           ', iosMeta.appleCapable, iosMeta.appleCapable === 'yes' ? '✔' : '❌');
   console.log('apple-mobile-web-app-status-bar-style:  ', iosMeta.statusBar, iosMeta.statusBar === 'black-translucent' ? '✔' : '❌');
-  console.log('apple-mobile-web-app-title:             ', iosMeta.appleTitle, Boolean(iosMeta.appleTitle) ? '✔' : '❌');
+  console.log('apple-mobile-web-app-title:             ', iosMeta.appleTitle, iosMeta.appleTitle === 'Lesofen Ajanda' ? '✔' : '❌');
   console.log('apple-touch-icon href:                  ', iosMeta.appleIcon, Boolean(iosMeta.appleIcon) ? '✔' : '❌');
 
   console.log('\n--- 3. SERVICE WORKER REGISTRATION & CONTROLLER CHECK ---');
@@ -383,7 +383,8 @@ async function run() {
   proc.kill();
 
   const allPassed = (
-    parsedManifest.name === 'Lesofen Agenda' &&
+    parsedManifest.name === 'Lesofen Ajanda' &&
+    parsedManifest.short_name === 'Lesofen Ajanda' &&
     parsedManifest.display === 'standalone' &&
     has192 && has512 &&
     iosMeta.appleCapable === 'yes' &&

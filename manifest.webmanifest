@@ -1,7 +1,7 @@
 {
-  "name": "Lesofen Agenda",
-  "short_name": "Agenda",
-  "description": "Lesofen Agenda — Training Calendar",
+  "name": "Lesofen Ajanda",
+  "short_name": "Lesofen Ajanda",
+  "description": "Lesofen Ajanda — Training Calendar",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -23,15 +23,16 @@
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/icon-512.png",
+      "src": "/assets/icons/lesofen-ajanda-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/assets/icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "/assets/icons/lesofen-ajanda-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
