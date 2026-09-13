@@ -960,11 +960,11 @@ dialog.agenda-dialog {
   width: calc(100% - 20px);
   max-width: 500px;
   max-height: 88vh;
-  max-height: 88dvh;
   padding: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  overscroll-behavior: contain;
   animation: modalEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -999,6 +999,8 @@ dialog.agenda-dialog::backdrop {
   overflow-x: hidden;
   flex: 1;
   min-height: 0;
+  overscroll-behavior: contain;
+  overflow-anchor: auto;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -1268,10 +1270,16 @@ dialog.agenda-dialog::backdrop {
   border-radius: 6px;
   color: #ffffff;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 16px;
   padding: 0 10px;
   outline: none;
   transition: border-color 0.15s ease;
+}
+
+@media (min-width: 640px) {
+  .exercise-search-input {
+    font-size: 13px;
+  }
 }
 
 .exercise-search-input:focus {
@@ -1533,11 +1541,17 @@ dialog.agenda-dialog::backdrop {
   border: none;
   color: #ffffff;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   outline: none;
   width: 100%;
   -moz-appearance: textfield;
+}
+
+@media (min-width: 640px) {
+  .set-input {
+    font-size: 13px;
+  }
 }
 
 .set-input::-webkit-outer-spin-button,
@@ -1639,12 +1653,19 @@ dialog.agenda-dialog::backdrop {
   border-radius: var(--radius-sm);
   color: #ffffff;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 16px;
   padding: 8px 10px;
   line-height: 1.5;
   resize: vertical;
   outline: none;
+  overflow-anchor: none;
   transition: border-color 0.15s ease;
+}
+
+@media (min-width: 640px) {
+  .workout-note-textarea {
+    font-size: 13px;
+  }
 }
 
 .workout-note-textarea:focus {

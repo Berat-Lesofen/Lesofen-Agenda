@@ -72,6 +72,10 @@ export class WorkoutModal {
     }
   }
 
+  isOpen() {
+    return Boolean(this.currentDateKey && this.dialog && (this.dialog.open || this.dialog.hasAttribute('open')));
+  }
+
   close() {
     if (typeof this.dialog.close === 'function') {
       this.dialog.close();
@@ -81,6 +85,7 @@ export class WorkoutModal {
     this.currentDateKey = null;
     this.isPickerOpen = false;
     this.pickerSearch = '';
+    this.onUpdate();
   }
 
   render() {
@@ -183,19 +188,21 @@ export class WorkoutModal {
                 <button type="button" class="btn-picker-close" id="btnClosePicker" title="Kapat">✕</button>
               </div>
 
-              ${(q && !exactMatch) ? `
-                <button type="button" class="btn-add-custom-exercise" id="btnAddCustomExercise" data-ex-name="${this.pickerSearch.trim()}">
-                  + "<strong>${this.pickerSearch.trim()}</strong>" Ekle (Özel)
-                </button>
-              ` : ''}
-
-              <div class="picker-chips-grid">
-                ${suggestions.slice(0, 16).map(item => `
-                  <button type="button" class="exercise-chip-btn" data-ex-name="${item.name}">
-                    <span class="ex-chip-name">${item.name}</span>
-                    <span class="ex-chip-cat">${item.category}</span>
+              <div id="pickerDynamicContainer">
+                ${(q && !exactMatch) ? `
+                  <button type="button" class="btn-add-custom-exercise" id="btnAddCustomExercise" data-ex-name="${this.pickerSearch.trim()}">
+                    + "<strong>${this.pickerSearch.trim()}</strong>" Ekle (Özel)
                   </button>
-                `).join('')}
+                ` : ''}
+
+                <div class="picker-chips-grid">
+                  ${suggestions.slice(0, 16).map(item => `
+                    <button type="button" class="exercise-chip-btn" data-ex-name="${item.name}">
+                      <span class="ex-chip-name">${item.name}</span>
+                      <span class="ex-chip-cat">${item.category}</span>
+                    </button>
+                  `).join('')}
+                </div>
               </div>
             </div>
           ` : ''}
@@ -401,12 +408,12 @@ export class WorkoutModal {
       });
     }
 
-    // 6. Exercise Search Input
+    // 6. Exercise Search Input (Local DOM update without modal re-render to prevent layout shifts)
     const searchInput = this.dialog.querySelector('#exerciseSearchInput');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         this.pickerSearch = e.target.value;
-        this.render();
+        this.updatePickerDynamicContainer(dateKey);
       });
 
       searchInput.addEventListener('keydown', (e) => {
@@ -506,6 +513,63 @@ export class WorkoutModal {
     if (noteTextarea) {
       noteTextarea.addEventListener('input', (e) => {
         agendaStorage.updateWorkoutNote(dateKey, e.target.value);
+      });
+    }
+  }
+
+  updatePickerDynamicContainer(dateKey) {
+    const container = this.dialog.querySelector('#pickerDynamicContainer');
+    if (!container) return;
+
+    const currentWorkout = agendaStorage.getWorkout(dateKey);
+    const currentSplit = currentWorkout ? SPLIT_MAP.get(currentWorkout.split) : null;
+    const q = this.pickerSearch.trim().toLowerCase();
+    const suggestions = DEFAULT_EXERCISES.filter(ex => {
+      if (!q) return true;
+      return ex.name.toLowerCase().includes(q) || ex.category.toLowerCase().includes(q);
+    });
+
+    if (!q && currentSplit) {
+      suggestions.sort((a, b) => {
+        const aHas = a.splits?.includes(currentSplit.id) ? 1 : 0;
+        const bHas = b.splits?.includes(currentSplit.id) ? 1 : 0;
+        return bHas - aHas;
+      });
+    }
+
+    const exactMatch = DEFAULT_EXERCISES.some(ex => ex.name.toLowerCase() === q);
+
+    container.innerHTML = `
+      ${(q && !exactMatch) ? `
+        <button type="button" class="btn-add-custom-exercise" id="btnAddCustomExercise" data-ex-name="${this.pickerSearch.trim()}">
+          + "<strong>${this.pickerSearch.trim()}</strong>" Ekle (Özel)
+        </button>
+      ` : ''}
+
+      <div class="picker-chips-grid">
+        ${suggestions.slice(0, 16).map(item => `
+          <button type="button" class="exercise-chip-btn" data-ex-name="${item.name}">
+            <span class="ex-chip-name">${item.name}</span>
+            <span class="ex-chip-cat">${item.category}</span>
+          </button>
+        `).join('')}
+      </div>
+    `;
+
+    // Rebind chip click listeners
+    container.querySelectorAll('.exercise-chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const exName = btn.dataset.exName;
+        if (exName) this.addExercise(dateKey, exName);
+      });
+    });
+
+    // Rebind custom exercise button listener
+    const customBtn = container.querySelector('#btnAddCustomExercise');
+    if (customBtn) {
+      customBtn.addEventListener('click', () => {
+        const exName = customBtn.dataset.exName;
+        if (exName) this.addExercise(dateKey, exName);
       });
     }
   }

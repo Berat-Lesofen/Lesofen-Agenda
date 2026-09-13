@@ -67,11 +67,14 @@ class AgendaStorage {
 
   /**
    * Save current schedule to localStorage
+   * @param {boolean} [notify=true] - Whether to notify subscribers (false during high-frequency typing)
    */
-  saveSchedule() {
+  saveSchedule(notify = true) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.schedule));
-      this._notify();
+      if (notify) {
+        this._notify();
+      }
     } catch (err) {
       console.error('[AgendaStorage] Failed to save schedule to storage:', err);
     }
@@ -237,7 +240,7 @@ class AgendaStorage {
   /**
    * Update weight or reps of a set
    */
-  updateSet(dateKey, exerciseId, setIndex, weight, reps) {
+  updateSet(dateKey, exerciseId, setIndex, weight, reps, notify = false) {
     const entry = this.schedule[dateKey];
     if (!entry || !Array.isArray(entry.exercises)) return;
     const exercise = entry.exercises.find(ex => ex.id === exerciseId);
@@ -246,7 +249,7 @@ class AgendaStorage {
     if (weight !== undefined) exercise.sets[setIndex].weight = String(weight);
     if (reps !== undefined) exercise.sets[setIndex].reps = String(reps);
     entry.updatedAt = new Date().toISOString();
-    this.saveSchedule();
+    this.saveSchedule(notify);
   }
 
   /**
@@ -260,7 +263,7 @@ class AgendaStorage {
 
     exercise.sets.splice(setIndex, 1);
     entry.updatedAt = new Date().toISOString();
-    this.saveSchedule();
+    this.saveSchedule(true);
   }
 
   /**
@@ -273,12 +276,12 @@ class AgendaStorage {
   /**
    * Update workout note
    */
-  updateWorkoutNote(dateKey, note) {
+  updateWorkoutNote(dateKey, note, notify = false) {
     const entry = this.schedule[dateKey];
     if (!entry) return;
     entry.note = String(note || '');
     entry.updatedAt = new Date().toISOString();
-    this.saveSchedule();
+    this.saveSchedule(notify);
   }
 
   /**

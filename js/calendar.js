@@ -26,8 +26,13 @@ export class CalendarApp {
     this.dragDrop = new DragDropManager(this);
     this.modal = new WorkoutModal(() => this.render());
 
-    // Re-render whenever storage updates
-    agendaStorage.subscribe(() => this.render());
+    // Re-render whenever storage updates (skip if modal is active to prevent layout jitter)
+    agendaStorage.subscribe(() => {
+      if (this.modal && typeof this.modal.isOpen === 'function' && this.modal.isOpen()) {
+        return;
+      }
+      this.render();
+    });
 
     this.render();
   }
