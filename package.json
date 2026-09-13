@@ -2,10 +2,9 @@
   "name": "lesofen-agenda",
   "version": "1.0.0",
   "description": "Training · Planning · Consistency — Mobil Öncelikli Antrenman Ajandası",
-  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "start": "node scripts/server.js",
     "test": "node tests/suite.js",
     "test:browser": "node tests/test-browser.js"
   },
