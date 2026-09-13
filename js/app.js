@@ -1,0 +1,35 @@
+/**
+ * LESOFEN AGENDA - Main Application Entry Point
+ * Training · Planning · Consistency
+ */
+
+import { CalendarApp } from './calendar.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+  const appContainer = document.getElementById('app');
+  if (!appContainer) {
+    console.error('[Lesofen Agenda] App root element #app not found.');
+    return;
+  }
+
+  // Initialize Calendar Application
+  const calendar = new CalendarApp(appContainer);
+  window.__LESOfEN_AGENDA__ = calendar;
+
+  // Register Service Worker for PWA & Offline Support
+  registerServiceWorker();
+});
+
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => {
+          console.log('[Lesofen Agenda] Service Worker registered with scope:', reg.scope);
+        })
+        .catch(err => {
+          console.warn('[Lesofen Agenda] Service Worker registration failed:', err);
+        });
+    });
+  }
+}

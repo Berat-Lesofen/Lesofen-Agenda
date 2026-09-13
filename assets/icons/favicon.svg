@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="16" fill="#08090c" />
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="#252e42" stroke-width="1.5" />
+  <rect x="12" y="16" width="40" height="34" rx="6" fill="#0d1017" stroke="#1e2433" stroke-width="1.5" />
+  <path d="M 12 22 C 12 18, 16 16, 20 16 L 44 16 C 48 16, 52 18, 52 22 L 52 25 L 12 25 Z" fill="#171d2c" />
+  <rect x="20" y="12" width="4" height="8" rx="2" fill="#ff9f1c" />
+  <rect x="40" y="12" width="4" height="8" rx="2" fill="#ff9f1c" />
+  <!-- Split dot indicator -->
+  <circle cx="32" cy="36" r="5" fill="#ff9f1c" />
+</svg>
