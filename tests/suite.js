@@ -169,8 +169,9 @@ async function runTests() {
   it('Service Worker caches all necessary application shell files', () => {
     const swPath = path.resolve('sw.js');
     const content = fs.readFileSync(swPath, 'utf-8');
-    assert.ok(content.includes('lesofen-agenda-v6'));
+    assert.ok(content.includes('lesofen-agenda-v8'));
     assert.ok(content.includes('/js/exportCard.js'));
+    assert.ok(!content.includes('/js/workoutModal.js'));
     assert.ok(!content.includes('/js/exercisesData.js'));
     assert.ok(content.includes('caches.open'));
     assert.ok(content.includes('caches.match'));
@@ -308,18 +309,14 @@ async function runTests() {
     assert.equal(TR_WEEKDAY_NAMES[6], 'PAZ');
   });
 
-  it('Calendar and modal files do not contain exercise log DOM references', () => {
+  it('Application is streamlined: no modal files or exercise log DOM references', () => {
     const modalPath = path.resolve('js/workoutModal.js');
-    const modalContent = fs.readFileSync(modalPath, 'utf-8');
-    assert.ok(!modalContent.includes('btnOpenAddExercise'), 'No exercise add button in modal');
-    assert.ok(!modalContent.includes('exerciseSearchInput'), 'No exercise search input in modal');
-    assert.ok(!modalContent.includes('sets-table-container'), 'No sets table in modal');
-    assert.ok(!modalContent.includes('workoutNoteTextarea'), 'No note textarea in modal');
-    assert.ok(modalContent.includes('modalBtnClose'), 'Close button exists in modal');
+    assert.equal(fs.existsSync(modalPath), false, 'workoutModal.js must be completely removed');
 
     const calPath = path.resolve('js/calendar.js');
     const calContent = fs.readFileSync(calPath, 'utf-8');
     assert.ok(!calContent.includes('egz'), 'No egz badge in day cells');
+    assert.ok(!calContent.includes('WorkoutModal'), 'No WorkoutModal in calendar.js');
     assert.ok(calContent.includes('btnExportCard'), 'Export card button exists');
     assert.ok(calContent.includes('AYLIK KARTI İNDİR'), 'Exact button text AYLIK KARTI İNDİR exists');
   });

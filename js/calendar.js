@@ -5,7 +5,6 @@
 
 import { agendaStorage, SPLITS, SPLIT_MAP } from './storage.js';
 import { DragDropManager } from './dragdrop.js';
-import { WorkoutModal } from './workoutModal.js';
 import { exportMonthlyCard } from './exportCard.js';
 
 export class CalendarApp {
@@ -25,13 +24,9 @@ export class CalendarApp {
 
     this.storage = agendaStorage;
     this.dragDrop = new DragDropManager(this);
-    this.modal = new WorkoutModal(() => this.render());
 
-    // Re-render whenever storage updates (skip if modal is active to prevent layout shifts)
+    // Re-render whenever storage updates
     agendaStorage.subscribe(() => {
-      if (this.modal && typeof this.modal.isOpen === 'function' && this.modal.isOpen()) {
-        return;
-      }
       this.render();
     });
 
@@ -266,10 +261,10 @@ export class CalendarApp {
               </h3>
               <ul class="tips-list">
                 <li><strong>Masaüstü:</strong> Split kartını tutup takvim gününe sürükleyin.</li>
-                <li><strong>Mobil:</strong> Güne dokunarak menüden seçin veya yukarıdan split'i seçip günlere tıklayın.</li>
-                <li><strong>Tamamlandı:</strong> Atanmış güne dokunarak tek tuşla <em>✓ Tamamlandı</em> yapabilirsiniz.</li>
-                <li><strong>Aylık Kart:</strong> <em>AYLIK KARTI İNDİR</em> ile seçili ayın antrenman takvimini PNG olarak cihazınıza kaydedin.</li>
-                <li><strong>Çevrimdışı:</strong> İnternet olmadan da tüm verileriniz cihazınızda korunur.</li>
+                <li><strong>Mobil:</strong> Split Bank'ten split seçip günlere dokunun veya kartı sürükleyin.</li>
+                <li><strong>Tamamlandı:</strong> Atanmış split kartına dokunarak doğrudan <em>✓ Tamamlandı</em> / <em>Planlandı</em> yapabilirsiniz.</li>
+                <li><strong>Silme:</strong> Split kartının yanındaki <em>×</em> butonuna dokunarak kaldırabilirsiniz.</li>
+                <li><strong>Aylık Kart:</strong> <em>AYLIK KARTI İNDİR</em> ile seçili ayın antrenman takvimini PNG olarak kaydedin.</li>
               </ul>
             </div>
 
@@ -348,8 +343,9 @@ export class CalendarApp {
       if (!dateKey) return;
 
       cell.addEventListener('click', (e) => {
-        // If clicking delete button directly
+        // 1. If clicking delete button directly
         if (e.target.closest('.btn-remove-split')) {
+          e.preventDefault();
           e.stopPropagation();
           agendaStorage.deleteWorkout(dateKey);
           this.render();
@@ -362,9 +358,15 @@ export class CalendarApp {
           const existing = agendaStorage.getWorkout(dateKey);
           agendaStorage.setWorkout(dateKey, selectedSplit, existing ? existing.status : 'planned');
           this.render();
-        } else {
-          // Open Simplified Workout Modal
-          this.modal.open(dateKey);
+          return;
+        }
+
+        // 2. If clicking on an existing workout split card -> toggle completed status in place!
+        const existing = agendaStorage.getWorkout(dateKey);
+        if (existing) {
+          e.preventDefault();
+          agendaStorage.toggleStatus(dateKey);
+          this.render();
         }
       });
 

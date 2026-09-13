@@ -5,7 +5,7 @@
 
 import { CalendarApp } from './calendar.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   const appContainer = document.getElementById('app');
   if (!appContainer) {
     console.error('[Lesofen Agenda] App root element #app not found.');
@@ -19,7 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Register Service Worker for PWA & Offline Support
   registerServiceWorker();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {

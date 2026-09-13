@@ -781,29 +781,42 @@ body {
 }
 
 .btn-remove-split {
-  display: none;
-  background: transparent;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
   color: inherit;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: bold;
   line-height: 1;
-  padding: 0 2px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 0;
   cursor: pointer;
-  opacity: 0.55;
-  transition: opacity 0.15s ease, color 0.15s ease;
+  opacity: 0.75;
+  transition: all 0.15s ease;
   flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 @media (min-width: 640px) {
   .btn-remove-split {
-    display: inline-block;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    opacity: 0.6;
   }
 }
 
 .btn-remove-split:hover {
   opacity: 1;
+  background: rgba(239, 68, 68, 0.4);
+  border-color: rgba(239, 68, 68, 0.7);
   color: #fff;
 }
 
@@ -1003,332 +1016,6 @@ body {
 .tips-list em {
   color: var(--accent-emerald);
   font-style: normal;
-}
-
-/* ===================================================================
-   DIALOG / MODAL STYLES (Light-Dismiss & Native <dialog>)
-   =================================================================== */
-
-dialog.agenda-dialog {
-  margin: auto;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  background: var(--bg-panel);
-  color: var(--text-main);
-  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  width: calc(100% - 20px);
-  max-width: 500px;
-  max-height: 88vh;
-  padding: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  overscroll-behavior: contain;
-  animation: modalEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes modalEnter {
-  from {
-    opacity: 0;
-    transform: scale(0.94) translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-dialog.agenda-dialog::backdrop {
-  background: rgba(4, 5, 8, 0.75);
-  backdrop-filter: blur(8px);
-  animation: backdropEnter 0.2s ease forwards;
-}
-
-@keyframes backdropEnter {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.dialog-content {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  flex: 1;
-  min-height: 0;
-  overscroll-behavior: contain;
-  overflow-anchor: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-@media (min-width: 640px) {
-  .dialog-content {
-    padding: 20px;
-    gap: 16px;
-  }
-}
-
-.dialog-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.dialog-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.dialog-kicker {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--accent-amber);
-  letter-spacing: 0.12em;
-}
-
-.dialog-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.dialog-close-btn {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 700;
-  transition: all 0.15s ease;
-  user-select: none;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.dialog-close-btn:hover {
-  background: var(--border-subtle);
-  color: #fff;
-  border-color: var(--border-accent);
-}
-
-.dialog-close-btn:active {
-  transform: scale(0.92);
-}
-
-/* Workout Status Card in Dialog */
-.workout-status-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid;
-}
-
-.split-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.split-color-pill {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.split-name {
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: 16px;
-  letter-spacing: 0.04em;
-}
-
-.status-badge {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
-  padding: 4px 8px;
-  border-radius: 6px;
-  letter-spacing: 0.05em;
-}
-
-.status-badge.is-completed {
-  background: rgba(16, 185, 129, 0.2);
-  color: var(--accent-emerald);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-}
-
-.status-badge.is-planned {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-muted);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-/* Actions in Dialog */
-.dialog-actions-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.btn-action {
-  min-height: 44px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-  border: 1px solid;
-  padding: 8px 12px;
-}
-
-.btn-action:active {
-  transform: scale(0.97);
-}
-
-.btn-mark-completed {
-  background: rgba(16, 185, 129, 0.14);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.35);
-}
-
-.btn-mark-completed:hover {
-  background: rgba(16, 185, 129, 0.25);
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
-}
-
-.btn-is-completed {
-  background: rgba(255, 159, 28, 0.14);
-  color: var(--accent-amber);
-  border-color: rgba(255, 159, 28, 0.35);
-}
-
-.btn-is-completed:hover {
-  background: rgba(255, 159, 28, 0.25);
-}
-
-.btn-delete {
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.25);
-}
-
-.btn-delete:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #fff;
-  border-color: #ef4444;
-}
-
-
-
-.dialog-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  margin: 4px 0;
-}
-
-.dialog-divider::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--border-subtle);
-}
-
-.dialog-divider span {
-  position: relative;
-  background: var(--bg-panel);
-  padding: 0 10px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.empty-day-banner p {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-}
-
-/* Split Selector Grid inside Dialog */
-.split-selector-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.split-select-btn {
-  min-height: 44px;
-  padding: 8px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--split-bg);
-  border: 1px solid var(--split-border);
-  color: var(--split-color);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  user-select: none;
-}
-
-.split-select-btn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.split-select-btn:active {
-  transform: scale(0.97);
-}
-
-.split-select-btn.is-active {
-  box-shadow: 0 0 0 2px #ffffff;
-}
-
-.split-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.split-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.split-check {
-  font-size: 12px;
-  color: #fff;
 }
 
 /* Animations */

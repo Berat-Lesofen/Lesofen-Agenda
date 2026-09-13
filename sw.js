@@ -3,7 +3,7 @@
  * Offline Cache & Standalone PWA Engine
  */
 
-const CACHE_NAME = 'lesofen-agenda-v6';
+const CACHE_NAME = 'lesofen-agenda-v8';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -14,7 +14,6 @@ const ASSETS_TO_CACHE = [
   '/js/calendar.js',
   '/js/storage.js',
   '/js/dragdrop.js',
-  '/js/workoutModal.js',
   '/js/exportCard.js',
   '/assets/icons/favicon.svg',
   '/assets/icons/icon-192.png',
