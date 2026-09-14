@@ -197,11 +197,23 @@ export class CalendarApp {
                     </div>
 
                     <div class="day-body">
-                      ${workout && split ? `
+                      ${workout && split ? (() => {
+                        const splitParts = split.name.includes('·')
+                          ? split.name.split('·').map(s => s.trim())
+                          : split.name.split(' ');
+                        const mobileWordsHtml = splitParts.map(p => `<span class="split-word">${p}</span>`).join('');
+                        const checkHtml = isCompleted ? '<span class="split-check">✓</span>' : '';
+                        return `
                         <div class="placed-split-card ${isCompleted ? 'is-completed' : ''}"
                              style="--split-color: ${split.color}; --split-bg: ${split.bg}; --split-border: ${split.border};">
                           <div class="placed-split-info">
-                            <span class="placed-split-text">${split.name}${isCompleted ? ' ✓' : ''}</span>
+                            <span class="placed-split-text">
+                              <span class="split-name-desktop">${split.name}${isCompleted ? ' ✓' : ''}</span>
+                              <span class="split-name-mobile">
+                                ${mobileWordsHtml}
+                                ${checkHtml}
+                              </span>
+                            </span>
                           </div>
                           <button type="button" 
                                   class="btn-remove-split" 
@@ -209,7 +221,8 @@ export class CalendarApp {
                                   aria-label="${split.name} splitini kaldır"
                                   title="Kaldır">×</button>
                         </div>
-                      ` : `
+                        `;
+                      })() : `
                         <div class="empty-cell-hint">
                           <span class="plus-icon">+</span>
                         </div>

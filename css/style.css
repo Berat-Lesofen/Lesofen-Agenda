@@ -682,7 +682,7 @@ body::after {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 5px 4px 5px 4px;
+  padding: 4px 3px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -782,13 +782,23 @@ body::after {
 
 /* Day Body & Placed Split */
 .day-body {
-  margin-top: auto;
+  margin-top: 0;
   flex: 1;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
   min-width: 0;
   width: 100%;
+  height: calc(100% - 18px);
+}
+
+@media (min-width: 640px) {
+  .day-body {
+    margin-top: auto;
+    height: auto;
+    align-items: flex-end;
+    justify-content: center;
+  }
 }
 
 .empty-cell-hint {
@@ -814,30 +824,36 @@ body::after {
 /* Placed Split Card */
 .placed-split-card {
   width: 100%;
-  min-width: 0;
-  padding: 3px 3px;
-  border-radius: 4px;
+  height: 100%;
+  min-height: 48px;
+  padding: 9px 2px 4px 2px;
+  border-radius: 5px;
   background: var(--split-bg);
   color: var(--split-color);
   border: 1px solid var(--split-border);
   font-family: var(--font-mono);
-  font-size: 8.5px;
-  font-weight: 800;
-  letter-spacing: 0.01em;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  gap: 2px;
+  position: relative;
+  text-align: center;
+  box-sizing: border-box;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 @media (min-width: 640px) {
   .placed-split-card {
+    height: auto;
+    min-height: unset;
     padding: 6px 8px;
     font-size: 11px;
     border-radius: 6px;
     letter-spacing: 0.02em;
+    flex-direction: row;
+    justify-content: space-between;
+    position: static;
   }
 }
 
@@ -853,16 +869,76 @@ body::after {
 .placed-split-info {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   min-width: 0;
   flex: 1;
-  gap: 1px;
+}
+
+@media (min-width: 640px) {
+  .placed-split-info {
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 1px;
+  }
 }
 
 .placed-split-text {
   min-width: 0;
+  display: block;
+  width: 100%;
+}
+
+.split-name-desktop {
+  display: none;
+}
+
+.split-name-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5px;
+  width: 100%;
+}
+
+.split-word {
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 100%;
+}
+
+.split-check {
+  font-size: 8.5px;
+  font-weight: 900;
+  color: var(--accent-emerald, #10b981);
+  margin-top: 1px;
+  line-height: 1;
+}
+
+@media (min-width: 640px) {
+  .split-name-desktop {
+    display: inline;
+  }
+  .split-name-mobile {
+    display: none;
+  }
+  .placed-split-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 800;
+  }
 }
 
 .placed-split-badge {
@@ -882,24 +958,27 @@ body::after {
 }
 
 .btn-remove-split {
-  display: inline-flex;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 13px;
+  height: 13px;
+  min-width: 13px;
+  min-height: 13px;
+  font-size: 9px;
+  line-height: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0;
   border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: inherit;
   font-family: var(--font-mono);
-  font-size: 11px;
   font-weight: bold;
-  line-height: 1;
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
-  min-height: 16px;
-  padding: 0;
   cursor: pointer;
-  opacity: 0.75;
+  opacity: 0.65;
   transition: all 0.15s ease;
   flex-shrink: 0;
   touch-action: manipulation;
@@ -907,17 +986,22 @@ body::after {
 
 @media (min-width: 640px) {
   .btn-remove-split {
+    position: static;
     width: 18px;
     height: 18px;
+    min-width: 18px;
+    min-height: 18px;
     font-size: 12px;
     opacity: 0.6;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 }
 
 .btn-remove-split:hover {
   opacity: 1;
-  background: rgba(239, 68, 68, 0.4);
-  border-color: rgba(239, 68, 68, 0.7);
+  background: rgba(239, 68, 68, 0.5);
+  border-color: rgba(239, 68, 68, 0.8);
   color: #fff;
 }
 
