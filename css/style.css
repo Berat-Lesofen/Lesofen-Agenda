@@ -665,7 +665,7 @@ body::after {
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 2px;
+  gap: 3.5px;
   min-width: 0;
 }
 
@@ -677,12 +677,12 @@ body::after {
 
 /* Individual Day Cell */
 .day-cell {
-  min-height: 64px;
+  min-height: 80px;
   min-width: 0;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 4px 3px;
+  padding: 5px 4px 5px 4px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -746,6 +746,7 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 2px;
 }
 
 .day-number {
@@ -781,10 +782,10 @@ body::after {
 
 /* Day Body & Placed Split */
 .day-body {
-  margin-top: 2px;
+  margin-top: auto;
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   min-width: 0;
   width: 100%;
@@ -814,7 +815,7 @@ body::after {
 .placed-split-card {
   width: 100%;
   min-width: 0;
-  padding: 2px 3px;
+  padding: 3px 3px;
   border-radius: 4px;
   background: var(--split-bg);
   color: var(--split-color);
