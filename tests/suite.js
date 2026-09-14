@@ -348,6 +348,60 @@ async function runTests() {
     assert.ok(calContent.includes('AYLIK KARTI İNDİR'), 'Exact button text AYLIK KARTI İNDİR exists');
   });
 
+  // 6. Security Headers & Defense-in-Depth Verification
+  console.log('\n[6. Security Headers & Defense-in-Depth Verification]');
+
+  it('vercel.json specifies all critical HTTP security headers', () => {
+    const vercelConfig = JSON.parse(fs.readFileSync('vercel.json', 'utf-8'));
+    const wildcardRoute = vercelConfig.headers.find(h => h.source === '/(.*)');
+    assert.ok(wildcardRoute, 'Wildcard route headers must be defined');
+
+    const headerMap = new Map();
+    wildcardRoute.headers.forEach(h => headerMap.set(h.key, h.value));
+
+    assert.equal(headerMap.get('X-Content-Type-Options'), 'nosniff');
+    assert.equal(headerMap.get('X-Frame-Options'), 'DENY');
+    assert.equal(headerMap.get('Referrer-Policy'), 'strict-origin-when-cross-origin');
+    assert.ok(headerMap.has('Permissions-Policy'), 'Permissions-Policy must be present');
+    assert.ok(headerMap.has('Content-Security-Policy'), 'Content-Security-Policy must be present');
+    assert.equal(headerMap.get('Cross-Origin-Opener-Policy'), 'same-origin');
+    assert.equal(headerMap.get('Cross-Origin-Resource-Policy'), 'same-origin');
+  });
+
+  it('Content-Security-Policy strictly disallows unsafe scripts, eval, and plugins', () => {
+    const vercelConfig = JSON.parse(fs.readFileSync('vercel.json', 'utf-8'));
+    const wildcardRoute = vercelConfig.headers.find(h => h.source === '/(.*)');
+    const csp = wildcardRoute.headers.find(h => h.key === 'Content-Security-Policy')?.value || '';
+
+    assert.ok(csp.includes("default-src 'self'"), 'CSP default-src must be self');
+    assert.ok(csp.includes("script-src 'self'"), 'CSP script-src must be self');
+    assert.ok(!csp.includes("'unsafe-eval'"), 'CSP must strictly disallow unsafe-eval');
+    assert.ok(csp.includes("object-src 'none'"), 'CSP object-src must be none');
+    assert.ok(csp.includes("frame-ancestors 'none'"), 'CSP frame-ancestors must be none');
+    assert.ok(csp.includes("base-uri 'self'"), 'CSP base-uri must be self');
+    assert.ok(csp.includes("form-action 'none'"), 'CSP form-action must be none');
+  });
+
+  it('Zero user-injected form fields exist across the entire app', () => {
+    const indexHtml = fs.readFileSync('index.html', 'utf-8');
+    const calendarJs = fs.readFileSync('js/calendar.js', 'utf-8');
+    assert.ok(!indexHtml.includes('<input'), 'index.html must have no inputs');
+    assert.ok(!indexHtml.includes('<textarea'), 'index.html must have no textareas');
+    assert.ok(!calendarJs.includes('<input'), 'calendar.js must have no inputs');
+    assert.ok(!calendarJs.includes('<textarea'), 'calendar.js must have no textareas');
+  });
+
+  it('Permissions-Policy locks down privacy-sensitive device APIs', () => {
+    const vercelConfig = JSON.parse(fs.readFileSync('vercel.json', 'utf-8'));
+    const wildcardRoute = vercelConfig.headers.find(h => h.source === '/(.*)');
+    const pp = wildcardRoute.headers.find(h => h.key === 'Permissions-Policy')?.value || '';
+
+    assert.ok(pp.includes('camera=()'), 'camera locked');
+    assert.ok(pp.includes('microphone=()'), 'microphone locked');
+    assert.ok(pp.includes('geolocation=()'), 'geolocation locked');
+    assert.ok(pp.includes('payment=()'), 'payment locked');
+  });
+
   console.log(`\n========================================`);
   console.log(`Test Results: ${passed} passed, ${failed} failed.`);
   console.log(`========================================\n`);
