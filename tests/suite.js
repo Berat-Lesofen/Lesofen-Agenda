@@ -48,9 +48,13 @@ async function runTests() {
   console.log('[1. Storage & Abstraction Tests]');
   const { agendaStorage, SPLITS, SPLIT_MAP, STORAGE_KEY } = await import('../js/storage.js');
 
-  it('All 9 required splits are defined properly', () => {
-    const required = ["PUSH", "PULL", "LEGS", "UPPER", "LOWER", "FULL BODY", "ANTERIOR", "POSTERIOR", "REST"];
-    assert.equal(SPLITS.length, 9);
+  it('All 13 required splits are defined properly', () => {
+    const required = [
+      "PUSH", "PULL", "LEGS", "UPPER", "LOWER", "FULL BODY", "ANTERIOR", "POSTERIOR",
+      "Sırt · Göğüs · Biceps", "Omuz · Bacak · Triceps", "Sırt · Göğüs", "Omuz · Bacak",
+      "REST"
+    ];
+    assert.equal(SPLITS.length, 13);
     for (const req of required) {
       const found = SPLIT_MAP.get(req);
       assert.ok(found, `Split ${req} must exist`);
@@ -91,6 +95,29 @@ async function runTests() {
     agendaStorage.deleteWorkout('2026-09-15');
     const workout = agendaStorage.getWorkout('2026-09-15');
     assert.equal(workout, null);
+  });
+
+  it('Can add and manage new splits (Ahmed Abi custom splits)', () => {
+    const newSplits = [
+      "Sırt · Göğüs · Biceps",
+      "Omuz · Bacak · Triceps",
+      "Sırt · Göğüs",
+      "Omuz · Bacak"
+    ];
+    for (let i = 0; i < newSplits.length; i++) {
+      const splitName = newSplits[i];
+      const date = `2026-10-1${i}`;
+      agendaStorage.setWorkout(date, splitName, 'planned');
+      const w = agendaStorage.getWorkout(date);
+      assert.ok(w);
+      assert.equal(w.split, splitName);
+      assert.equal(w.status, 'planned');
+      const splitObj = SPLIT_MAP.get(splitName);
+      assert.ok(splitObj);
+      assert.equal(splitObj.isRest, false);
+      assert.ok(splitObj.color);
+      agendaStorage.deleteWorkout(date);
+    }
   });
 
   it('Calculates monthly summary statistics accurately', () => {
@@ -169,7 +196,7 @@ async function runTests() {
   it('Service Worker caches all necessary application shell files', () => {
     const swPath = path.resolve('sw.js');
     const content = fs.readFileSync(swPath, 'utf-8');
-    assert.ok(content.includes('lesofen-agenda-v10'));
+    assert.ok(content.includes('lesofen-agenda-v11'));
     assert.ok(content.includes('/js/exportCard.js'));
     assert.ok(!content.includes('/js/workoutModal.js'));
     assert.ok(!content.includes('/js/exercisesData.js'));

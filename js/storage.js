@@ -17,10 +17,19 @@ export const SPLITS = [
   { id: "FULL BODY", name: "FULL BODY", color: "#10b981", bg: "rgba(16, 185, 129, 0.15)", border: "rgba(16, 185, 129, 0.35)", isRest: false },
   { id: "ANTERIOR", name: "ANTERIOR", color: "#eab308", bg: "rgba(234, 179, 8, 0.15)", border: "rgba(234, 179, 8, 0.35)", isRest: false },
   { id: "POSTERIOR", name: "POSTERIOR", color: "#ec4899", bg: "rgba(236, 72, 153, 0.15)", border: "rgba(236, 72, 153, 0.35)", isRest: false },
+  { id: "Sırt · Göğüs · Biceps", name: "Sırt · Göğüs · Biceps", color: "#6366f1", bg: "rgba(99, 102, 241, 0.15)", border: "rgba(99, 102, 241, 0.35)", isRest: false },
+  { id: "Omuz · Bacak · Triceps", name: "Omuz · Bacak · Triceps", color: "#14b8a6", bg: "rgba(20, 184, 166, 0.15)", border: "rgba(20, 184, 166, 0.35)", isRest: false },
+  { id: "Sırt · Göğüs", name: "Sırt · Göğüs", color: "#f43f5e", bg: "rgba(244, 63, 94, 0.15)", border: "rgba(244, 63, 94, 0.35)", isRest: false },
+  { id: "Omuz · Bacak", name: "Omuz · Bacak", color: "#84cc16", bg: "rgba(132, 204, 22, 0.15)", border: "rgba(132, 204, 22, 0.35)", isRest: false },
   { id: "REST", name: "REST", color: "#94a3b8", bg: "rgba(148, 163, 184, 0.12)", border: "rgba(148, 163, 184, 0.30)", isRest: true }
 ];
 
-export const SPLIT_MAP = new Map(SPLITS.map(s => [s.id, s]));
+export const SPLIT_MAP = new Map();
+SPLITS.forEach(s => {
+  SPLIT_MAP.set(s.id, s);
+  SPLIT_MAP.set(s.id.toUpperCase(), s);
+  SPLIT_MAP.set(s.name, s);
+});
 
 class AgendaStorage {
   constructor() {

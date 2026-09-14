@@ -234,7 +234,7 @@ export class CalendarApp {
                 <span class="box-hint">Masaüstü: Tut & Sürükle · Mobil: Dokun</span>
               </div>
 
-              <!-- 9 Split Seçeneği -->
+              <!-- Split Seçenekleri (13 Model) -->
               <div class="split-chips-container">
                 ${SPLITS.map(sp => {
                   const isSelected = selectedSplit === sp.id;

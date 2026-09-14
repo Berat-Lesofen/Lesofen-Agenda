@@ -261,7 +261,7 @@ export async function exportMonthlyCard(year, monthIndex, storage, splitMap) {
       // Split Name
       ctx.font = 'bold 13px "JetBrains Mono", monospace';
       ctx.fillStyle = split.color;
-      ctx.fillText(split.name, pillX + 24, pillY + 22);
+      ctx.fillText(split.name, pillX + 24, pillY + 22, pillW - 32);
 
       // Status Indicator
       if (isCompleted) {
