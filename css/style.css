@@ -54,13 +54,105 @@ html {
 }
 
 body {
+  position: relative;
   min-height: 100%;
+  background-color: var(--bg-obsidian);
   background: radial-gradient(circle at 50% 0%, #101524 0%, #08090c 60%);
   background-attachment: fixed;
   color: var(--text-main);
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* ===================================================================
+   SUBTLE LIVING BACKGROUND ("Living Calendar / Flow of Time")
+   Architecture: Pure GPU-composited CSS pseudo-elements, 0 JS overhead,
+   imperceptible architectural grid drift and ambient flow of time.
+   =================================================================== */
+
+/* Layer 1: Architectural Technical Grid & Intersection Micro-points */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -60px;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle 1px at 0 0, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.016) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.016) 1px, transparent 1px);
+  background-size: 72px 72px;
+  background-position: 0 0;
+  opacity: 0.85;
+  animation: subtleLivingGrid 36s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Layer 2: Subtle Ambient Flow of Time */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -80px;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 85% 55% at 50% 25%,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(16, 21, 36, 0.04) 45%,
+    transparent 75%
+  );
+  opacity: 0.7;
+  animation: subtleLivingFlow 42s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+@keyframes subtleLivingGrid {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(18px, 12px, 0);
+  }
+  100% {
+    transform: translate3d(-12px, 20px, 0);
+  }
+}
+
+@keyframes subtleLivingFlow {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(-20px, 15px, 0) scale(1.03);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(15px, -15px, 0) scale(0.98);
+    opacity: 0.5;
+  }
+}
+
+@media (max-width: 639px) {
+  body::after {
+    display: none; /* Mobilde pil ve GPU yükünü sıfıra indirmek için ambient flow kapatılır */
+  }
+  body::before {
+    background-size: 56px 56px;
+    opacity: 0.65;
+    animation-duration: 48s; /* Mobilde daha da yavaş ve sade */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 /* Custom Scrollbars */
@@ -81,6 +173,9 @@ body {
 
 /* App Container */
 #app {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
   width: 100%;
   max-width: 1320px;
   margin: 0 auto;

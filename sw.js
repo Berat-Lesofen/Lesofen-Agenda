@@ -3,7 +3,7 @@
  * Offline Cache & Standalone PWA Engine
  */
 
-const CACHE_NAME = 'lesofen-agenda-v8';
+const CACHE_NAME = 'lesofen-agenda-v9';
 
 const ASSETS_TO_CACHE = [
   '/',
