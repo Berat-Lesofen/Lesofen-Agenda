@@ -169,7 +169,7 @@ async function runTests() {
   it('Service Worker caches all necessary application shell files', () => {
     const swPath = path.resolve('sw.js');
     const content = fs.readFileSync(swPath, 'utf-8');
-    assert.ok(content.includes('lesofen-agenda-v9'));
+    assert.ok(content.includes('lesofen-agenda-v10'));
     assert.ok(content.includes('/js/exportCard.js'));
     assert.ok(!content.includes('/js/workoutModal.js'));
     assert.ok(!content.includes('/js/exercisesData.js'));

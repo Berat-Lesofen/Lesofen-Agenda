@@ -94,19 +94,21 @@ body::before {
 body::after {
   content: '';
   position: fixed;
-  inset: -80px;
+  inset: -15%;
+  width: 130%;
+  height: 130%;
   pointer-events: none;
   user-select: none;
   z-index: 0;
   background: radial-gradient(
-    ellipse 85% 55% at 50% 25%,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(16, 21, 36, 0.04) 45%,
-    transparent 75%
+    ellipse 80% 60% at 50% 18%,
+    rgba(56, 115, 200, 0.38) 0%,
+    rgba(34, 72, 138, 0.24) 40%,
+    rgba(18, 40, 80, 0.12) 68%,
+    transparent 88%
   );
-  opacity: 0.7;
-  animation: subtleLivingFlow 42s ease-in-out infinite alternate;
-  will-change: transform, opacity;
+  animation: subtleLivingFlow 28s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 @keyframes subtleLivingGrid {
@@ -123,27 +125,30 @@ body::after {
 
 @keyframes subtleLivingFlow {
   0% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 0.5;
+    transform: translate3d(-160px, -45px, 0) scale(0.95);
   }
   50% {
-    transform: translate3d(-20px, 15px, 0) scale(1.03);
-    opacity: 0.85;
+    transform: translate3d(30px, 30px, 0) scale(1.08);
   }
   100% {
-    transform: translate3d(15px, -15px, 0) scale(0.98);
-    opacity: 0.5;
+    transform: translate3d(160px, -30px, 0) scale(1.0);
   }
 }
 
 @media (max-width: 639px) {
-  body::after {
-    display: none; /* Mobilde pil ve GPU yükünü sıfıra indirmek için ambient flow kapatılır */
-  }
   body::before {
     background-size: 56px 56px;
-    opacity: 0.65;
-    animation-duration: 48s; /* Mobilde daha da yavaş ve sade */
+    opacity: 0.7;
+    animation-duration: 44s;
+  }
+  body::after {
+    animation-duration: 32s;
+    background: radial-gradient(
+      ellipse 85% 50% at 50% 18%,
+      rgba(50, 100, 180, 0.28) 0%,
+      rgba(28, 60, 115, 0.16) 40%,
+      transparent 75%
+    );
   }
 }
 
